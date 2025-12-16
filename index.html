@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delight Coffee Cafe – POS</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+body{margin:0;font-family:Poppins,sans-serif;color:#fff;background:url("https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1280&q=80") center/cover fixed no-repeat}
+body::before{content:"";position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:-1}
+
+.hero{text-align:center;padding:70px}
+.hero h1{font-family:"Great Vibes";font-size:50px;color:#ffcc90;margin:0}
+.hero p{color:#ffe7bd;margin:5px 0 0}
+
+.section{max-width:1200px;margin:auto;padding:20px}
+.section h2{color:#ffcc90;border-bottom:2px solid #ffcc90;display:inline-block;margin-bottom:15px}
+
+.menu-grid{display:grid;grid-template-columns:1fr;gap:15px;margin-top:10px} /* MOBILE FIRST */
+
+.card{background:rgba(255,240,220,.15);padding:18px;border-radius:20px;backdrop-filter:blur(10px)}
+.card h3{color:#ffe7bd;margin-bottom:8px}
+
+.pizza-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px} /* Pizza buttons mobile 2 per row */
+.pizza-grid button{width:100%;border:none;padding:8px;border-radius:12px;background:#ffcc90;font-weight:600;cursor:pointer;transition:0.2s}
+.pizza-grid button:hover{background:#ffd27f}
+
+/* CART FLOATING RIGHT */
+#cart{
+  position:fixed;
+  top:70px;
+  right:10px;
+  width:320px;
+  max-height:80vh;
+  overflow-y:auto;
+  background:rgba(0,0,0,.85);
+  padding:10px;
+  border-radius:15px;
+  font-size:14px;
+  z-index:1000;
+}
+#cart h3{text-align:center;color:#ffcc90;margin:5px 0}
+#cart ul{list-style:none;padding:0;margin:0}
+#cart li{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:8px;
+}
+.qty{
+  display:flex;
+  gap:6px;
+  margin-left:10px;
+}
+.qty button{width:30px;height:30px;border:none;border-radius:50%;cursor:pointer;font-weight:700;font-size:18px}
+.total{text-align:center;font-weight:700;color:#ffd27f;margin-top:10px}
+select,button.submit{width:100%;padding:12px;margin-top:8px;border:none;border-radius:10px;font-weight:600;font-size:16px}
+button.submit{background:#ffcc90;cursor:pointer;transition:0.2s}
+button.submit:hover{background:#ffd27f}
+.addon{font-size:13px;margin-top:4px;color:#ffe7bd}
+
+/* SURPRISE */
+#surpriseBtn{width:100%;margin-top:10px;padding:12px;border-radius:10px;background:#ffcc90;font-weight:600;cursor:pointer;transition:0.2s;font-size:16px}
+#surpriseBtn:hover{background:#ffd27f}
+#surpriseMsg{margin-top:5px;color:#ffe7bd;font-style:italic;font-size:14px;text-align:center}
+
+/* FOOTER */
+footer{padding:20px;text-align:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);margin-top:50px;border-top:1px solid #ffcc90}
+footer a{display:inline-block;margin:10px 5px;background:#ffcc90;color:#000;padding:10px 20px;border-radius:25px;font-weight:600;text-decoration:none;transition:0.3s}
+footer a:hover{background:#ffd27f}
+footer p{margin-top:10px;font-size:13px;color:#ffe7bd}
+
+/* LARGER SCREENS */
+@media(min-width:600px){
+  .menu-grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+}
+/* MOBILE OPTIMIZATION */
+@media(max-width:599px){
+  #cart{position:fixed;width:90%;right:50%;transform:translateX(50%);top:auto;bottom:0;max-height:50vh;}
+}
+
+/* ====== RESPONSIVE MENU GRID ====== */
+/* Tablet screens */
+@media(min-width:600px) and (max-width:1023px){
+  .menu-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+  .hero h1{font-size:44px}
+  .hero p{font-size:16px}
+}
+
+/* Small Desktop / Large Tablet */
+@media(min-width:1024px) and (max-width:1399px){
+  .menu-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+  .hero h1{font-size:48px}
+  .hero p{font-size:17px}
+}
+
+/* Large Desktop */
+@media(min-width:1400px){
+  .menu-grid{
+    grid-template-columns:repeat(4,1fr);
+  }
+  .hero h1{font-size:50px}
+  .hero p{font-size:18px}
+}
+
+/* Mobile adjustments */
+@media(max-width:599px){
+  .hero h1{font-size:36px}
+  .hero p{font-size:14px}
+  .pizza-grid button, button.submit, #surpriseBtn{
+    padding:8px;
+    font-size:14px;
+  }
+}
+
+@media(max-width:599px){
+  #cart{position:fixed;width:90%;right:50%;transform:translateX(50%);top:auto;bottom:0;max-height:50vh;}
+}
+
+
+</style>
+</head>
+<body>
+
+<div class="hero">
+<h1>Delight Coffee Cafe</h1>
+<p>Sip • Relax • Repeat</p>
+</div>
+
+<div id="menu"></div>
+
+<!-- CART -->
+<div id="cart">
+<h3>🛒 Order Cart</h3>
+
+<select id="table">
+<option value="">Select Table</option>
+<option>Table 1</option>
+<option>Table 2</option>
+<option>Table 3</option>
+<option>Table 4</option>
+<option>Take Away</option>
+</select>
+
+<ul id="cartItems"></ul>
+<div class="total">Total ₹<span id="total">0</span></div>
+
+<button class="submit" onclick="submitOrder()">Place Order</button>
+
+<!-- Surprise Button -->
+<button id="surpriseBtn">🎁 Surprise!</button>
+<p id="surpriseMsg"></p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+<p>📞 7220000226 | 7742829653</p>
+<a href="https://instagram.com/delightcofffecafe" target="_blank">📸 Follow on Instagram</a>
+<p>Made by V.S Rathore | © 2025 Delight Coffee Cafe – All Rights Reserved</p>
+</footer>
+
+<script>
+/* ========= MENU JSON ========= */
+const menuData = {
+"Pizza": {type:"size-base",sizes:["Regular 7\"","Regular 9\"","Wheat 7\"","Wheat 9\""],items:{"Margherita":[89,129,109,159],"Onion":[89,129,109,159],"Corn":[89,129,109,159],"Capsicum":[89,129,109,159],"CTC":[99,149,119,169],"Paneer":[129,169,149,199],"Paneer Onion":[139,179,159,209],"Peppy Paneer":[149,189,169,219],"Garden Fresh":[159,199,179,229],"DCC Special":[199,249,219,279]}},
+"Chaat": {type:"single",items:{"American Sweet Corn":49,"Bhel Puri":49,"Kurkure Chaat":49,"Bingo Chaat":49,"Cheese Bingo Chaat":59,"Masala Nachos":69,"Cheese Nachos":79}},
+"Fries": {type:"single",items:{"French Fries":59,"Peri Peri Fries":69,"Cheese Fries":79}},
+"Sandwiches": {type:"single",items:{"Peanut Butter Sandwich":49,"Bombay Sandwich":49,"Veg Sandwich (Grilled)":59,"Masala Sandwich (Grilled)":59,"Veg Cheese Grilled Sandwich":69,"Paneer Sandwich (Grilled)":79,"Paneer Cheese Sandwich":89,"DCC Special Sandwich (Grilled)":99}},
+"Maggie": {type:"single",items:{"Plain Maggie":39,"Veg Maggie":49,"Cheese Maggie":69,"Peri Peri Maggie":79,"Cheese Corn Maggie":79,"Paneer Veg Maggie":89}},
+"Pasta": {type:"single",items:{"Red Sauce Pasta":99,"White Sauce Pasta":119,"Pink Sauce Pasta":129}},
+"Burger": {type:"single",items:{"Aloo Tikki Burger":49,"Veg Tikki Burger":59,"Double Aloo Tikki Burger":69,"Cheese Burger":79,"DCC Special Burger":89}},
+"Brownie": {type:"single",items:{"Classic Brownie":49,"Choco Lava Cake":59,"Brownie with Ice Cream":69}},
+"Ice Cream": {type:"single",items:{"Vanilla Ice Cream":29,"Chocolate Ice Cream":39,"Butter Scotch Ice Cream":39}},
+"Shakes": {type:"single",items:{"Vanilla Shake":69,"Strawberry Shake":69,"Chocolate Shake":79,"Butter Scotch Shake":79,"Oreo Shake":89,"Kitkat Shake":89,"Paan Shake":89,"Rose Gulkand Shake":89,"Kesar Pista Shake":99,"Black Current Shake":99}},
+"Soups": {type:"single",items:{"Tomato Soup":35,"Manchow Soup":39,"Corn Soup":39}},
+"Rolls": {type:"single",items:{"Spring Roll (6 pc)":79,"Cheese Roll (6 pc)":89}},
+"Crunchies": {type:"single",items:{"Potato Nuggets (6 pc)":59,"Cheese Corn Toast":79}},
+"Garlic Bread": {type:"single",items:{"Stuffed Garlic Bread":99,"OTC Garlic Bread":99}},
+"Dabeli": {type:"single",items:{"Garam Dabeli":35,"DCC Special Dabeli":49}},
+"Pav Items": {type:"single",items:{"Bun Maska":25,"Vada Pav":35,"Butter Vada Pav":45,"Peri-Peri Vada Pav":49,"DCC Special Vada Pav":59,"Pav Bhaji":79}},
+"Coffee": {type:"size",sizes:["S","M","L"],items:{"Hot Coffee":[29,39,null],"Black Coffee":[29,39,null],"Hot Coffee (with Chocolate)":[35,49,null],"Classic Cold Coffee":[40,55,79],"Cold Coffee (Vanilla Ice Cream)":[55,65,89],"Cold Coffee (Chocolate Ice Cream)":[60,70,99],"DCC Special Cold Coffee":[null,null,110]},addons:{"Extra Strong Coffee":10,"Chocochip":10}},
+"Tea": {type:"single",items:{"Masala Tea":19,"Elaichi Tea":19,"Ginger Tea":19,"Lemon Tea":29,"Green Tea":29,"DCC Special Tea":29}},
+"Ice Tea": {type:"single",items:{"Lemon Ice Tea":59,"Strawberry Ice Tea":69,"Watermelon Ice Tea":69,"Peach Ice Tea":69}},
+"Mocktails": {type:"single",items:{"Lemonade":49,"Virgin Mojito (Mint)":49,"Blue Lagoon":49,"Watermelon Mocktail":49,"Strawberry Mojito":49}}
+};
+
+/* ========= RENDER MENU ========= */
+const menuDiv=document.getElementById("menu");
+for(let cat in menuData){
+  let section=document.createElement("div"); section.className="section";
+  section.innerHTML=`<h2>${cat}</h2><div class="menu-grid"></div>`;
+  let grid=section.querySelector(".menu-grid");
+  let data=menuData[cat];
+  
+  for(let item in data.items){
+    let card=document.createElement("div"); card.className="card";
+    card.innerHTML=`<h3>${item}</h3>`;
+    
+    if(data.type==="single"){
+      let btn=document.createElement("button");
+      btn.innerText=`ADD ₹${data.items[item]}`;
+      btn.addEventListener("click",()=>addItem(item,'',data.items[item]));
+      card.appendChild(btn);
+    }else if(data.type==="size-base"){
+      let miniDiv=document.createElement("div"); miniDiv.className="pizza-grid";
+      data.sizes.forEach((s,i)=>{
+        let b=document.createElement("button");
+        b.innerText=`${s} ₹${data.items[item][i]}`;
+        b.addEventListener("click",()=>addItem(item,s,data.items[item][i]));
+        miniDiv.appendChild(b);
+      });
+      card.appendChild(miniDiv);
+    }else if(data.type==="size"){
+      let sizeDiv=document.createElement("div"); sizeDiv.className="sizes";
+      data.sizes.forEach((s,i)=>{
+        let price=data.items[item][i];
+        if(price!==null){
+          let b=document.createElement("button");
+          b.innerText=`${s} ₹${price}`;
+          b.addEventListener("click",()=>addItem(item,s,price));
+          sizeDiv.appendChild(b);
+        }
+      });
+      if(data.addons){
+        for(let a in data.addons){
+          let d=document.createElement("div"); d.className="addon";
+          d.innerText=`+ ${a} ₹${data.addons[a]}`;
+          sizeDiv.appendChild(d);
+        }
+      }
+      card.appendChild(sizeDiv);
+    }
+    
+    grid.appendChild(card);
+  }
+  menuDiv.appendChild(section);
+}
+
+/* ========= CART ========= */
+let cart=[],total=0;
+function addItem(name,size,price){
+  let f=cart.find(i=>i.name===name&&i.size===size);
+  if(f) f.qty++; else cart.push({name,size,price,qty:1});
+  renderCart();
+}
+function changeQty(i,d){
+  cart[i].qty+=d;
+  if(cart[i].qty<=0) cart.splice(i,1);
+  renderCart();
+}
+function renderCart(){
+  total=0;
+  let ul=document.getElementById("cartItems");
+  ul.innerHTML="";
+  cart.forEach((i,n)=>{
+    total+=i.price*i.qty;
+    ul.innerHTML+=`<li>
+      <span>${i.name} ${i.size}</span>
+      <span>₹${i.price}</span>
+      <div class="qty">
+        <button onclick="changeQty(${n},-1)">−</button>
+        <span>${i.qty}</span>
+        <button onclick="changeQty(${n},1)">+</button>
+      </div>
+    </li>`;
+  });
+  document.getElementById("total").innerText=total;
+}
+
+/* ========= WHATSAPP ORDER ========= */
+function submitOrder(){
+  let table=document.getElementById("table").value;
+  if(!table||cart.length===0){alert("Select table & items");return;}
+  
+  let msg=`🧾 *New Cafe Order*%0A🍽 *${table}*%0A%0A`;
+  cart.forEach((i,n)=>{msg+=`${n+1}. ${i.name} ${i.size} x ${i.qty} = ₹${i.price*i.qty}%0A`});
+  msg+=`%0A💰 *Total:* ₹${total}`;
+  
+  window.open(`https://wa.me/917742829653?text=${msg}`,"_blank");
+  
+  cart=[];renderCart();document.getElementById("table").value="";
+}
+
+/* ========= SURPRISE BUTTON ========= */
+document.getElementById("surpriseBtn").addEventListener("click",()=>{
+    document.getElementById("surpriseMsg").innerHTML="🎁 Surprise: Check this → <a href='https://lr2938650-svg.github.io/Aapka-bhai-suprise/' target='_blank' style='color:#ffd27f;text-decoration:underline'>Click Here!</a>";
+});
+</script>
+
+</body>
+</html>
